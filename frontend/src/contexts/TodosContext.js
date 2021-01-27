@@ -7,14 +7,28 @@ export default function TodosContextProvider(props) {
   const [todos, setTodos] = React.useState([]);
 
   const fetchTodos = () => {
-    axios.get("/get-todos").then((response) => setTodos(response.data));
+    axios.get("/todos").then((response) => setTodos(response.data));
+  };
+
+  const createNewTodo = (todoToAddName) => {
+    const todo = { name: todoToAddName, isCompleted: false };
+    axios
+      .post("/todos", todo)
+      .then((response) => setTodos([...todos, response.data[0]]));
+  };
+
+  const deleteTodo = (todoToDeleteId) => {
+    axios.delete(`/todos/${todoToDeleteId}`).then((response) => {
+      const newTodosList = todos.filter((todo) => todo.id !== todoToDeleteId);
+      setTodos(newTodosList);
+    });
   };
 
   React.useEffect(() => {
-    fetchTudos();
+    fetchTodos();
   }, []);
   return (
-    <TodosContext.Provider value={{ todos }}>
+    <TodosContext.Provider value={{ todos, createNewTodo, deleteTodo }}>
       {props.children}
     </TodosContext.Provider>
   );
